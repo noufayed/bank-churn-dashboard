@@ -4,20 +4,19 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 import pandas as pd
 
-# 1. تحميل البيانات المنظفة
+
 df = pd.read_csv("cleaned_bank_churn.csv")
 
-# 2. إنشاء التطبيق
 app = dash.Dash(__name__)
 app.title = "Bank Customer Churn Dashboard"
 
-# 3. تصميم الواجهة (Layout)
+
 app.layout = html.Div(style={'backgroundColor': '#f8f9fa', 'padding': '20px', 'fontFamily': 'Arial'}, children=[
     
-    # Header / العنوان
+
     html.H1("Bank Customer Churn & Risk Intelligence", style={'textAlign': 'center', 'color': '#1f2d3d', 'marginBottom': '30px'}),
     
-    # Row 1: Key Metrics (KPI Cards)
+    
     html.Div(style={'display': 'flex', 'justifyContent': 'space-between', 'marginBottom': '30px'}, children=[
         html.Div(style={'backgroundColor': '#ffffff', 'padding': '20px', 'borderRadius': '10px', 'width': '30%', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)', 'textAlign': 'center'}, children=[
             html.H4("Total Customers", style={'color': '#6c757d', 'margin': '0'}),
@@ -33,7 +32,7 @@ app.layout = html.Div(style={'backgroundColor': '#f8f9fa', 'padding': '20px', 'f
         ]),
     ]),
     
-    # Row 2: Filters (القوائم المنسدلة)
+   
     html.Div(style={'backgroundColor': '#ffffff', 'padding': '20px', 'borderRadius': '10px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)', 'marginBottom': '30px'}, children=[
         html.Label("Select Country (Geography):", style={'fontWeight': 'bold', 'color': '#333'}),
         dcc.Dropdown(
@@ -45,7 +44,7 @@ app.layout = html.Div(style={'backgroundColor': '#f8f9fa', 'padding': '20px', 'f
         )
     ]),
     
-    # Row 3: Interactive Graphs (الأشكال البيانية)
+   
     html.Div(style={'display': 'flex', 'justifyContent': 'space-between'}, children=[
         html.Div(style={'width': '49%', 'backgroundColor': '#ffffff', 'padding': '15px', 'borderRadius': '10px', 'boxShadow': '0 2px 4px rgba(0,0,0,0.1)'}, children=[
             dcc.Graph(id='churn-by-age-graph')
@@ -56,20 +55,20 @@ app.layout = html.Div(style={'backgroundColor': '#f8f9fa', 'padding': '20px', 'f
     ])
 ])
 
-# 4. Callbacks (ربط الفلتر بالأشكال البيانية)
+
 @app.callback(
     [Output('churn-by-age-graph', 'figure'),
      Output('balance-vs-score-graph', 'figure')],
     [Input('country-filter', 'value')]
 )
 def update_graphs(selected_country):
-    # تصفية البيانات حسب الدولة المختارة
+  
     if selected_country == 'All':
         filtered_df = df
     else:
         filtered_df = df[df['Geography'] == selected_country]
         
-    # الرسم البياني الأول: نسبة المغادرة حسب الفئة العمرية
+    
     age_churn = filtered_df.groupby('AgeGroup', observed=False)['Exited'].mean().reset_index()
     age_churn['ChurnRate'] = age_churn['Exited'] * 100
     
@@ -83,7 +82,7 @@ def update_graphs(selected_country):
     )
     fig_age.update_layout(template='plotly_white')
     
-    # الرسم البياني الثاني: العلاقة بين الدرجة الائتمانية والرصيد
+   
     fig_balance = px.scatter(
         filtered_df, 
         x='CreditScore', 
@@ -98,6 +97,6 @@ def update_graphs(selected_country):
     
     return fig_age, fig_balance
 
-# 5. تشغيل التطبيق
+
 if __name__ == '__main__':
     app.run(debug=True)
